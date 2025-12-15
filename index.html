@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculator</title>
+  <style>
+    /* Basic page reset and layout */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f3f4f6, #dbeafe);
+      color: #111827;
+    }
+
+    .calculator {
+      width: 320px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .display {
+      padding: 16px;
+      background: #111827;
+      color: #f9fafb;
+      font-size: 32px;
+      text-align: right;
+      letter-spacing: 1px;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      word-wrap: break-word;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding: 16px;
+    }
+
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 14px 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: transform 0.05s ease, box-shadow 0.2s ease;
+      background: #e5e7eb;
+      color: #111827;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    }
+
+    .operator {
+      background: #c7d2fe;
+      color: #111827;
+    }
+
+    .equals {
+      background: #4f46e5;
+      color: #f9fafb;
+    }
+
+    .clear {
+      background: #fef3c7;
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <div id="display" class="display" aria-live="polite">0</div>
+    <div class="buttons">
+      <!-- Number buttons -->
+      <button data-value="7">7</button>
+      <button data-value="8">8</button>
+      <button data-value="9">9</button>
+      <button class="operator" data-value="/">÷</button>
+
+      <button data-value="4">4</button>
+      <button data-value="5">5</button>
+      <button data-value="6">6</button>
+      <button class="operator" data-value="*">×</button>
+
+      <button data-value="1">1</button>
+      <button data-value="2">2</button>
+      <button data-value="3">3</button>
+      <button class="operator" data-value="-">−</button>
+
+      <button data-value="0">0</button>
+      <button data-value=".">.</button>
+      <button class="clear" data-action="clear">C</button>
+      <button class="operator" data-value="+">+</button>
+
+      <!-- The equals button spans the full row for emphasis -->
+      <button class="equals" data-action="equals" style="grid-column: span 4;">=</button>
+    </div>
+  </div>
+
+  <script>
+    // Grab the display element to show what the user types and the results
+    const display = document.getElementById("display");
+
+    // Keep track of what the user has typed so far as a string (e.g., "12+3")
+    let expression = "";
+
+    // Helper: update the screen, falling back to "0" when empty
+    function updateDisplay(value) {
+      display.textContent = value || "0";
+    }
+
+    // Helper: safely evaluate the math expression using the Function constructor
+    function evaluateExpression(expr) {
+      // We only allow numbers, operators, and decimal points
+      const safeExpression = expr.replace(/[^0-9+\-*/.]/g, "");
+
+      // Use Function instead of eval for slightly safer evaluation
+      try {
+        // The "return" makes the string act like a function body
+        const result = new Function(`return ${safeExpression || 0}`)();
+        return result;
+      } catch (error) {
+        return "Error";
+      }
+    }
+
+    // Handle button clicks in a single place using event delegation
+    document.querySelector(".buttons").addEventListener("click", (event) => {
+      const button = event.target.closest("button");
+      if (!button) return; // Ignore clicks that are not on buttons
+
+      const value = button.dataset.value;
+      const action = button.dataset.action;
+
+      if (action === "clear") {
+        // Clear everything and reset the display
+        expression = "";
+        updateDisplay(expression);
+        return;
+      }
+
+      if (action === "equals") {
+        // Calculate the answer and show it
+        const result = evaluateExpression(expression);
+        expression = String(result);
+        updateDisplay(expression);
+        return;
+      }
+
+      // Otherwise, it's a number or operator, so append it
+      expression += value;
+      updateDisplay(expression);
+    });
+  </script>
+</body>
+</html>
